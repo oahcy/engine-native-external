@@ -193,7 +193,7 @@
 /* #undef HAVE_FSEEKO64 */
 #define HAVE_SIGACTION 1
 #define HAVE_SA_SIGACTION 1
-#define HAVE_SETJMP 1
+/* #undef HAVE_SETJMP */
 #define HAVE_NANOSLEEP 1
 #define HAVE_SYSCONF 1
 /* #undef HAVE_SYSCTLBYNAME */
@@ -223,7 +223,7 @@
 /* #undef HAVE_INOTIFY_INIT1 */
 #define HAVE_INOTIFY 1
 /* #undef HAVE_IBUS_IBUS_H */
-#define HAVE_IMMINTRIN_H 1
+/* #undef HAVE_IMMINTRIN_H */
 /* #undef HAVE_LIBUDEV_H */
 /* #undef HAVE_LIBSAMPLERATE_H */
 /* #undef HAVE_LIBDECOR_H */
