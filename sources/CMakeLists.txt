@@ -45,7 +45,9 @@ if(NOT USE_MODULES)
 endif()
 
 # add dependent boost libs
+if(NOT NX)
 include(${CMAKE_CURRENT_LIST_DIR}/boost-source/boost.cmake)
+endif()
 
 if(USE_SE_QUICKJS)
   include(${CMAKE_CURRENT_LIST_DIR}/quickjs/CMakeLists.txt)
