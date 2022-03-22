@@ -279,9 +279,16 @@ template<> struct atomic_selector<8> {
 
 #endif /* OS selection */
 
+#if (CC_PLATFORM == CC_PLATFORM_NX)
+    #include "machine/linux_ia64.h"
+    #include "pthread.h"
+    #define __TBB_Yield() sched_yield()
+#endif
+
 #ifndef __TBB_64BIT_ATOMICS
     #define __TBB_64BIT_ATOMICS 1
 #endif
+
 
 //TODO: replace usage of these functions with usage of tbb::atomic, and then remove them
 //TODO: map functions with W suffix to use cast to tbb::atomic and according op, i.e. as_atomic().op()

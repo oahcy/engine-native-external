@@ -26,6 +26,9 @@ extern "C" {
 #include <mach/mach.h>
 #elif defined(__unix__)
 #include <semaphore.h>
+#elif (CC_PLATFORM == CC_PLATFORM_NX)
+#include <nn/os/os_Semaphore.h>
+#include <nn/nn_TimeSpan.h>
 #endif
 
 namespace moodycamel
@@ -239,8 +242,44 @@ public:
 		}
 	}
 };
+#elif (CC_PLATFORM == CC_PLATFORM_NX)
+class Semaphore {
+private:
+    nn::os::SemaphoreType m_hSema;
+
+    Semaphore(const Semaphore& other) MOODYCAMEL_DELETE_FUNCTION;
+    Semaphore& operator=(const Semaphore& other) MOODYCAMEL_DELETE_FUNCTION;
+
+public:
+    Semaphore(int initialCount = 0) {
+        assert(initialCount >= 0);
+        const long maxLong = 0x7fffffff;
+        nn::os::InitializeSemaphore(&m_hSema, initialCount, maxLong);
+    }
+
+    ~Semaphore() {
+        nn::os::FinalizeSemaphore(&m_hSema);
+    }
+
+    bool wait() {
+        const unsigned long infinite = 0xffffffff;
+        return nn::os::TimedAcquireSemaphore(&m_hSema, nn::TimeSpanType::FromMilliSeconds(infinite));
+    }
+
+    bool try_wait() {
+        return TryAcquireSemaphore(&m_hSema);
+    }
+
+    bool timed_wait(std::uint64_t usecs) {
+        return nn::os::TimedAcquireSemaphore(&m_hSema, nn::TimeSpanType::FromMicroSeconds(usecs));
+    }
+
+    void signal(int count = 1) {
+        ReleaseSemaphore(&m_hSema, count);
+    }
+};
 #else
-#error Unsupported platform! (No semaphore wrapper available)
+    #error Unsupported platform! (No semaphore wrapper available)
 #endif
 
 }	// end namespace details

@@ -47,7 +47,15 @@ endif()
 # add dependent boost libs
 include(${CMAKE_CURRENT_LIST_DIR}/boost-source/boost.cmake)
 
-if(ANDROID OR OHOS)
+if(USE_SE_QUICKJS)
+  include(${CMAKE_CURRENT_LIST_DIR}/quickjs/CMakeLists.txt)
+endif()
+
+if(NX)
+include(${CMAKE_CURRENT_LIST_DIR}/libpng-1.6.37/CMakeLists.txt)
+endif()
+
+if(ANDROID OR OHOS OR NX)
 
   include(${CMAKE_CURRENT_LIST_DIR}/pvmp3dec/CMakeLists.txt)
   include(${CMAKE_CURRENT_LIST_DIR}/tremolo/CMakeLists.txt)
