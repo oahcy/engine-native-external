@@ -17,7 +17,7 @@ list(APPEND CC_EXTERNAL_INCLUDES
   ${platform_spec_path}/include/v8
 )
 
-include("${COCOS_X_PATH}/conan/win64/conanbuildinfo.cmake")
+include("${COCOS_X_PATH}/conan/build/conanbuildinfo.cmake")
 conan_basic_setup()
 
 list(APPEND CC_EXTERNAL_LIBS

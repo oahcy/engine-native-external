@@ -57,7 +57,7 @@ else()
     message(FATAL_ERROR "Only V8 is supported!")
 endif()
 
-include("${COCOS_X_PATH}/conan/win64/conanbuildinfo.cmake")
+include("${COCOS_X_PATH}/conan/build/conanbuildinfo.cmake")
 conan_basic_setup()
 
 list(APPEND CC_EXTERNAL_LIBS
