@@ -1,182 +1,88 @@
 set(linux_lib_dir ${platform_spec_path}/lib)
 MESSAGE(STATUS "${platform_spec_path}")
-add_library(uv STATIC IMPORTED GLOBAL)
-set_target_properties(uv PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/libuv/libuv_a.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/libuv
-)
-
-add_library(mpg123 STATIC IMPORTED GLOBAL)
-set_target_properties(mpg123 PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/mpg123/libmpg123.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/mpg123
-)
-
-add_library(ogg STATIC IMPORTED GLOBAL)
-set_target_properties(ogg PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/ogg/libogg.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/ogg
-)
-
-add_library(vorbisfile STATIC IMPORTED GLOBAL)
-set_target_properties(vorbisfile PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/vorbis/libvorbisfile.a
-)
-
-add_library(vorbis STATIC IMPORTED GLOBAL)
-set_target_properties(vorbis PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/vorbis/libvorbis.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/vorbis
-)
-
-add_library(libz STATIC IMPORTED GLOBAL)
-set_target_properties(libz PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/libz/libz.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/libz
-)
-
-add_library(sqlite3 STATIC IMPORTED GLOBAL)
-set_target_properties(sqlite3 PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/sqlite/libsqlite3.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/sqlite
-)
 
 add_library(v8 STATIC IMPORTED GLOBAL)
 set_target_properties(v8 PROPERTIES
   IMPORTED_LOCATION ${linux_lib_dir}/v8/libv8_monolith.a
 )
 
-add_library(openal STATIC IMPORTED GLOBAL)
-set_target_properties(openal PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/openal-soft/libopenal.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/openal-soft
-)
+### vcpkg
+set(third_parts)
+set(third_include)
 
-add_library(jpeg STATIC IMPORTED GLOBAL)
-set_target_properties(jpeg PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/jpeg/libjpeg.a
-)
+find_package(WebP CONFIG REQUIRED)
+list(APPEND third_parts WebP::webp WebP::webpdemux WebP::libwebpmux WebP::webpdecoder )
 
-add_library(png STATIC IMPORTED GLOBAL)
-set_target_properties(png PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/libpng/libpng16.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/libpng
-)
+find_package(SDL2 CONFIG REQUIRED)
+list(APPEND third_parts SDL2::SDL2 SDL2::SDL2main)
 
-add_library(ssl STATIC IMPORTED GLOBAL)
-set_target_properties(ssl PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/openssl/libssl.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/openssl
-)
-add_library(crypto STATIC IMPORTED GLOBAL)
-set_target_properties(crypto PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/openssl/libcrypto.a
-)
-set(optional_libs_name ssl crypto)
+find_package(OpenSSL REQUIRED)
+list(APPEND third_parts OpenSSL::SSL OpenSSL::Crypto)
 
-add_library(websockets STATIC IMPORTED GLOBAL)
-set_target_properties(websockets PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/libwebsockets/libwebsockets.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/libwebsockets
-)
+find_package(freetype CONFIG REQUIRED)
+list(APPEND third_parts freetype)
 
-add_library(curl STATIC IMPORTED GLOBAL)
-set_target_properties(curl PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/curl/libcurl.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/curl
-)
+find_package(JPEG REQUIRED)
+list(APPEND third_parts  ${JPEG_LIBRARIES})
+list(APPEND third_include ${JPEG_INCLUDE_DIR})
 
-add_library(webp STATIC IMPORTED GLOBAL)
-set_target_properties(webp PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/libwebp/libwebp.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/libwebp
-)
+find_package(CURL CONFIG REQUIRED)
+list(APPEND third_parts CURL::libcurl)
 
-add_library(tbb STATIC IMPORTED GLOBAL)
-set_target_properties(tbb PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/tbb/libtbb_static.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/tbb
-)
-set(optional_libs_name ${optional_libs_name} tbb)
+find_package(mpg123 CONFIG REQUIRED)
+list(APPEND third_parts MPG123::libmpg123 MPG123::libout123 MPG123::libsyn123)
 
-add_library(sdl2 STATIC IMPORTED GLOBAL)
-set_target_properties(sdl2 PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/sdl2/libSDL2.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/sdl2
-)
+find_package(Ogg CONFIG REQUIRED)
+list(APPEND third_parts PRIVATE Ogg::ogg)
 
-if (USE_DEBUG_RENDERER)
-add_library(freetype STATIC IMPORTED GLOBAL)
-set_target_properties(freetype PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/freetype/libfreetype.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/freetype
-)
+find_package(PNG REQUIRED)
+list(APPEND third_parts PRIVATE PNG::PNG)
+
+find_package(libuv CONFIG REQUIRED)
+list(APPEND third_parts  $<IF:$<TARGET_EXISTS:uv_a>,uv_a,uv>)
+
+# Vorbis reference encoder and decoder, low-level API
+find_package(Vorbis CONFIG REQUIRED)
+list(APPEND third_parts Vorbis::vorbis)
+
+# Audio stream decoding and basic manipulation, high-level API
+find_package(Vorbis CONFIG REQUIRED)
+list(APPEND third_parts Vorbis::vorbisfile)
+
+find_package(OpenAL CONFIG REQUIRED)
+list(APPEND third_parts OpenAL::OpenAL)
+
+find_package(unofficial-sqlite3 CONFIG REQUIRED)
+list(APPEND third_parts unofficial::sqlite3::sqlite3)
+
+find_package(ZLIB REQUIRED)
+list(APPEND third_parts ZLIB::ZLIB)
+
+find_package(libwebsockets CONFIG REQUIRED)
+list(APPEND third_parts websockets_shared)
+
+find_package(glslang CONFIG REQUIRED)
+list(APPEND third_parts HLSL SPIRV glslang OGLCompiler)
+
+find_package(TBB CONFIG REQUIRED)
+list(APPEND third_parts TBB::tbb)
+
+if(NOT USE_SERVER_MODE)
+  find_package(SDL2 CONFIG REQUIRED)
+  list(APPEND third_parts SDL2::SDL2 SDL2::SDL2main)
 endif()
 
-#glslang
-add_library(libGenericCodeGen STATIC IMPORTED GLOBAL)
-set_target_properties(libGenericCodeGen PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/glslang/libGenericCodeGen.a
-)
-add_library(libglslang STATIC IMPORTED GLOBAL)
-set_target_properties(libglslang PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/glslang/libglslang.a
-)
-add_library(libglslang-default-resource-limits STATIC IMPORTED GLOBAL)
-set_target_properties(libglslang-default-resource-limits PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/glslang/libglslang-default-resource-limits.a
-)
-add_library(libSPIRV STATIC IMPORTED GLOBAL)
-set_target_properties(libSPIRV PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/glslang/libSPIRV.a
-)
-add_library(libMachineIndependent STATIC IMPORTED GLOBAL)
-set_target_properties(libMachineIndependent PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/glslang/libMachineIndependent.a
-)
-add_library(libOGLCompiler STATIC IMPORTED GLOBAL)
-set_target_properties(libOGLCompiler PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/glslang/libOGLCompiler.a
-)
-add_library(libOSDependent STATIC IMPORTED GLOBAL)
-set_target_properties(libOSDependent PROPERTIES
-  IMPORTED_LOCATION ${linux_lib_dir}/glslang/libOSDependent.a
-)
-
-set(glslang_libs_name libMachineIndependent libGenericCodeGen libglslang libglslang-default-resource-limits libSPIRV libOGLCompiler libOSDependent)
-
-
+###vcpkg end
 list(APPEND CC_EXTERNAL_INCLUDES
   ${platform_spec_path}/include
   ${platform_spec_path}/include/v8
   ${platform_spec_path}/include/uv
+  ${third_include}
 )
 
-if (USE_DEBUG_RENDERER)
-list(APPEND CC_EXTERNAL_LIBS
-    freetype
-)
-endif()
+
 
 list(APPEND CC_EXTERNAL_LIBS
-    uv
-    vorbisfile
-    vorbis
-    ogg
-    libz
-    sqlite3
-    v8
-    openal
-    mpg123
-    jpeg
-    png
-    websockets
-    webp
-    curl
-    ${optional_libs_name}
-    ${glslang_libs_name}
+  v8
+  ${third_parts}
 )
-
-if(NOT USE_SERVER_MODE)
-  list(APPEND CC_EXTERNAL_LIBS sdl2)
-endif()
