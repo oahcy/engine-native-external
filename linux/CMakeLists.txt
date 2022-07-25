@@ -59,7 +59,7 @@ find_package(ZLIB REQUIRED)
 list(APPEND third_parts ZLIB::ZLIB)
 
 find_package(libwebsockets CONFIG REQUIRED)
-list(APPEND third_parts websockets_shared)
+target_link_libraries(main PRIVATE websockets)
 
 find_package(glslang CONFIG REQUIRED)
 list(APPEND third_parts HLSL SPIRV glslang OGLCompiler)

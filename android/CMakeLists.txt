@@ -1,58 +1,9 @@
 
-add_library(crypto STATIC IMPORTED GLOBAL)
-set_target_properties(crypto PROPERTIES
-  IMPORTED_LOCATION ${platform_spec_path}/libcrypto.a
-)
-
-if (USE_DEBUG_RENDERER)
-add_library(freetype STATIC IMPORTED GLOBAL)
-set_target_properties(freetype PROPERTIES
-  IMPORTED_LOCATION ${platform_spec_path}/libfreetype.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/freetype
-)
-endif()
-
-add_library(jpeg STATIC IMPORTED GLOBAL)
-set_target_properties(jpeg PROPERTIES
-  IMPORTED_LOCATION ${platform_spec_path}/libjpeg.a
-)
-
-add_library(png STATIC IMPORTED GLOBAL)
-set_target_properties(png PROPERTIES
-  IMPORTED_LOCATION ${platform_spec_path}/libpng.a
-)
-
-add_library(ssl STATIC IMPORTED GLOBAL)
-set_target_properties(ssl PROPERTIES
-  IMPORTED_LOCATION ${platform_spec_path}/libssl.a
-)
-
-add_library(uv STATIC IMPORTED GLOBAL)
-set_target_properties(uv PROPERTIES
-  IMPORTED_LOCATION ${platform_spec_path}/libuv.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/uv
-)
 
 add_library(openxr SHARED IMPORTED GLOBAL)
 set_target_properties(openxr PROPERTIES
   IMPORTED_LOCATION ${platform_spec_path}/libxr_loader.so
   INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/openxr
-)
-
-add_library(webp STATIC IMPORTED GLOBAL)
-set_target_properties(webp PROPERTIES
-  IMPORTED_LOCATION ${platform_spec_path}/libwebp.a
-)
-
-add_library(websockets STATIC IMPORTED GLOBAL)
-set_target_properties(websockets PROPERTIES
-  IMPORTED_LOCATION ${platform_spec_path}/libwebsockets.a
-)
-
-add_library(z STATIC IMPORTED GLOBAL)
-set_target_properties(z PROPERTIES
-  IMPORTED_LOCATION ${platform_spec_path}/libz.a
-  INTERFACE_INCLUDE_DIRECTORIES ${platform_spec_path}/include/zlib
 )
 
 add_library(android_platform STATIC
@@ -106,64 +57,14 @@ if(USE_SE_V8 AND USE_V8_DEBUGGER)
     )
 endif()
 
-############################# glslang #############################
-
-set(glslang_libs_name glslang glslang-default-resource-limits MachineIndependent OGLCompiler OSDependent SPIRV SPIRV-Tools-opt SPIRV-Tools GenericCodeGen)
-foreach(lib IN LISTS glslang_libs_name)
-  add_library(${lib} STATIC IMPORTED GLOBAL)
-  set_target_properties(${lib} PROPERTIES
-    IMPORTED_LOCATION ${platform_spec_path}/glslang/lib${lib}.a
-  )
-endforeach()
-
-############################# TBB #############################
-
-add_library(tbb STATIC IMPORTED GLOBAL)
-set_target_properties(tbb PROPERTIES
-  IMPORTED_LOCATION ${platform_spec_path}/libtbb_static.a
-)
-set(tbb_libs_name tbb)
-
-if(USE_PHYSICS_PHYSX)
-  set(PhysXSDK PhysXCooking PhysXCharacterKinematic PhysXVehicle PhysXExtensions PhysX PhysXPvdSDK PhysXCommon PhysXFoundation)
-  foreach(PX IN LISTS PhysXSDK)
-    add_library(${PX} STATIC IMPORTED GLOBAL)
-    set_target_properties(${PX} PROPERTIES
-      IMPORTED_LOCATION ${platform_spec_path}/PhysX/lib${PX}_static.a
-    )
-  endforeach()
-else()
-  set(PhysXSDK)
-endif()
-
-if (USE_DEBUG_RENDERER)
-list(APPEND CC_EXTERNAL_LIBS
-    freetype
-)
-endif()
 
 list(APPEND CC_EXTERNAL_LIBS
-    jpeg
-    png
-    uv
-    webp
     android_platform
-    ${glslang_libs_name}
-    ${tbb_libs_name}
-    ${PhysXSDK}
 )
-
-set(ZLIB z)
-if(NOT USE_MODULES)
-  list(APPEND CC_EXTERNAL_LIBS ${ZLIB}  ${se_libs_name})
-endif()
-
 
 
 list(APPEND CC_EXTERNAL_INCLUDES
   ${platform_spec_path}/include
   ${platform_spec_path}/include/v8
-  ${platform_spec_path}/include/uv
-  ${platform_spec_path}/include/glslang
   ${CMAKE_ANDROID_NDK}/sources/android/native_app_glue
 )
